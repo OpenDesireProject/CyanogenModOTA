@@ -52,7 +52,7 @@
             $this->channel = $this->getBuildPropValue( 'ro.odp.releasetype' );;
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
-            $this->changelogUrl = $this->_getChangelogUrl();
+            //$this->changelogUrl = $this->_getChangelogUrl(); // doesn't exist currently
             $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
