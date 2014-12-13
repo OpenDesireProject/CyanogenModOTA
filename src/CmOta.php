@@ -87,7 +87,7 @@
         private function initRouting() {
             // Just list the builds folder for now
             Flight::route('/', function() {
-                Flight::redirect( '/builds');
+                Flight::redirect( '../');
             });
 
             // Main call
