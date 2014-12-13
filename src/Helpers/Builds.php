@@ -109,7 +109,7 @@
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
             // Get the file list and parse it
-    		$files = preg_grep( '/^([^.Thumbs])/', scandir( $path ) );
+    		$files = preg_grep( '/^([^.Thumbs])/', $this->ListIn( $path ) );
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
 
@@ -135,5 +135,23 @@
                 }
             }
     	}
+
+        // http://proger.i-forge.net/3_ways_to_recursively_list_all_files_in_a_directory/Opc
+        private function ListIn($dir, $prefix = '') {
+            $dir = rtrim($dir, '\\/');
+            $result = array();
+
+            foreach (scandir($dir) as $f) {
+                if ($f !== '.' and $f !== '..') {
+                    if (is_dir("$dir/$f")) {
+                        $result = array_merge($result, $this->ListIn("$dir/$f", "$prefix$f/"));
+                    } else {
+                        $result[] = $prefix.$f;
+                    }
+                }
+            }
+
+            return $result;
+        }
 
     }
