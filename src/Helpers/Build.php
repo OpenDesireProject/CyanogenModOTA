@@ -47,19 +47,6 @@
          * @param type $physicalPath The current path where the build lives
          */
     	public function __construct($fileName, $physicalPath) {
-    		/*
-				$tokens Schema:
-
-                array(
-                    1 => [CM VERSION] (ex. 10.1.x, 10.2, 11, etc.)
-                    2 => [DATE OF BUILD] (ex. 20140130)
-                    3 => [CHANNEL OF THE BUILD] (ex. RC, RC2, NIGHTLY, etc.)
-                    4 => [MODEL] (ex. i9100, i9300, etc.)
-                )
-            */
-            preg_match_all( '/cm-([0-9\.]+-)(\d+-)?([a-zA-Z0-9]+-)?([a-zA-Z0-9]+)/', $fileName, $tokens );
-            $tokens = $this->removeTrailingDashes( $tokens );
-
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
             $this->channel = $this->getBuildPropValue( 'ro.odp.releasetype' );;
