@@ -28,7 +28,7 @@
 
     $app = new CmOta();
     $app
-    ->setConfig( 'basePath', '/CyanogenModOTA' )
+    ->setConfig( 'basePath', 'https://dl.opendesireproject.org/ota' )
     ->setConfig( 'memcached.host', 'localhost' )
     ->setConfig( 'memcached.port', 11211 )
     ->enableMemcached()
