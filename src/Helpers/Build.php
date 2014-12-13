@@ -62,7 +62,7 @@
 
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
-            $this->channel = $this->_getChannel( str_replace( range( 0 , 9 ), '', $tokens[3] ) );
+            $this->channel = $this->getBuildPropValue( 'ro.odp.releasetype' );;
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             $this->changelogUrl = $this->_getChangelogUrl();
