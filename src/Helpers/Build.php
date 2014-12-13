@@ -49,7 +49,7 @@
     	public function __construct($fileName, $physicalPath) {
             $this->filePath = $physicalPath . '/' . $fileName;
             $this->buildProp = explode( "\n", file_get_contents('zip://'.$this->filePath.'#system/build.prop') );
-            $this->channel = $this->getBuildPropValue( 'ro.odp.releasetype' );;
+            $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.odp.releasetype' ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
             //$this->changelogUrl = $this->_getChangelogUrl(); // doesn't exist currently
@@ -207,12 +207,11 @@
          * @return string The correct channel to be returned
          */
         private function _getChannel($token){
-            $ret = 'stable';
+            $ret = 'nightly';
 
             $token = strtolower( $token );
             if ( $token > '' ) {
                 $ret = $token;
-                if ( $token == 'experimental' ) $ret = 'snapshot';
             }
 
             return $ret;
