@@ -224,7 +224,10 @@
          */
         private function _getUrl($fileName = '', $basePath){
             if ( empty($fileName) ) $fileName = $this->filename;
-            return $basePath . '/' . $fileName;
+            if ( $this->channel == "nightly" )
+                return $basePath . '/nightlies/' . $fileName;
+            else
+                return $basePath . '/releases/' . $fileName;
         }
 
         /**
