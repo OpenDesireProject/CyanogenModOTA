@@ -113,28 +113,31 @@
             if ( count( $files ) > 0  ) {
                 foreach ( $files as $file ) {
                     $pieces = explode("/", $file);
-                    $dir = $pieces[0];
-                    $filename = $pieces[1];
-                    $full_path = $path . '/' . $dir;
+                    $major_version = $pieces[0];
+                    $dir = $pieces[1];
+                    $filename = $pieces[2];
+                    $full_path = $path . '/' . $major_version . '/' . $dir;
 
-                    // Try to find the build using memcached
-                    if ( Flight::cfg()->get( 'memcached.enabled') ) {
-                        $build = Flight::mc()->get( $filename );
+                    if ( $dir == 'nightlies' OR $dir == 'snapshots' ) {
+                        // Try to find the build using memcached
+                        if ( Flight::cfg()->get( 'memcached.enabled') ) {
+                            $build = Flight::mc()->get( $filename );
 
-                        // If not found there, we have to find it with the old fashion method...
-                        if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
+                            // If not found there, we have to find it with the old fashion method...
+                            if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
+                                $build = new Build( $filename, $full_path );
+                                // ...and then save it for the next lookup
+                                Flight::mc()->set( $filename, serialize($build), MEMCACHE_COMPRESSED );
+                            // If we have found it, just unserialize it and continue
+                            } else {
+                                $build = unserialize( $build );
+                            }
+                        } else
                             $build = new Build( $filename, $full_path );
-                            // ...and then save it for the next lookup
-                            Flight::mc()->set( $filename, serialize($build), MEMCACHE_COMPRESSED );
-                        // If we have found it, just unserialize it and continue
-                        } else {
-                            $build = unserialize( $build );
-                        }
-                    } else
-                        $build = new Build( $filename, $full_path );
 
-                    if ( $build->isValid( $this->postData['params'] ) ) {
-                        array_push( $this->builds , $build );
+                        if ( $build->isValid( $this->postData['params'] ) ) {
+                            array_push( $this->builds , $build );
+                        }
                     }
                 }
             }
