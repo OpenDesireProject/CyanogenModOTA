@@ -28,7 +28,7 @@
 
     class Build {
 
-    	private $apiLevel = -1;
+        private $apiLevel = -1;
         private $channel = '';
         private $model = '';
         private $filename = '';
@@ -224,10 +224,16 @@
          */
         private function _getUrl($fileName = '', $basePath){
             if ( empty($fileName) ) $fileName = $this->filename;
-            if ( $this->channel == "nightly" )
-                return $basePath . '/nightlies/' . $fileName;
-            else
-                return $basePath . '/releases/' . $fileName;
+            $prefix = '/12';
+            switch ( $this->channel ) {
+                case 'nightly':
+                    $prefix .= '/nightlies';
+                    break;
+                case 'snapshot':
+                    $prefix .= '/snapshots';
+                    break;
+            }
+            return $basePath . $prefix . '/' . $fileName;
         }
 
         /**
