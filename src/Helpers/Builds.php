@@ -108,57 +108,43 @@
     	private function getBuilds() {
             // Get physical paths of where the files resides
             $path = Flight::cfg()->get('realBasePath') . '/builds/full';
+            $path .= '/12';
             // Get the file list and parse it
-    		$files = preg_grep( '/^([^.Thumbs])/', $this->ListIn( $path ) );
-            if ( count( $files ) > 0  ) {
-                foreach ( $files as $file ) {
-                    $pieces = explode("/", $file);
-                    $major_version = $pieces[0];
-                    $dir = $pieces[1];
-                    $filename = $pieces[2];
-                    $full_path = $path . '/' . $major_version . '/' . $dir;
-
-                    if ( $dir == 'nightlies' OR $dir == 'snapshots' ) {
-                        // Try to find the build using memcached
-                        if ( Flight::cfg()->get( 'memcached.enabled') ) {
-                            $build = Flight::mc()->get( $filename );
-
-                            // If not found there, we have to find it with the old fashion method...
-                            if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
-                                $build = new Build( $filename, $full_path );
-                                // ...and then save it for the next lookup
-                                Flight::mc()->set( $filename, serialize($build), MEMCACHE_COMPRESSED );
-                            // If we have found it, just unserialize it and continue
-                            } else {
-                                $build = unserialize( $build );
-                            }
-                        } else
-                            $build = new Build( $filename, $full_path );
-
-                        if ( $build->isValid( $this->postData['params'] ) ) {
-                            array_push( $this->builds , $build );
-                        }
-                    }
-                }
+            $subdirs = array(
+                'nightlies',
+                'snapshots'
+            );
+            foreach ( $subdirs as $subdir ) {
+                $files = preg_grep( '/^([^.Thumbs])/', scandir( $path . '/' . $subdir ) );
+                $this->processBuilds($files, $path, $subdir);
             }
     	}
 
-        // http://proger.i-forge.net/3_ways_to_recursively_list_all_files_in_a_directory/Opc
-        private function ListIn($dir, $prefix = '') {
-            $dir = rtrim($dir, '\\/');
-            $result = array();
+        private function processBuilds($files, $path, $subdir) {
+            if ( count( $files ) > 0  ) {
+                foreach ( $files as $file ) {
 
-            foreach (scandir($dir) as $f) {
-                if ($f !== '.' and $f !== '..') {
-                    if (is_dir("$dir/$f")) {
-                        $result = array_merge($result, $this->ListIn("$dir/$f", "$prefix$f/"));
-                    } else {
-                        $result[] = $prefix.$f;
+                    // Try to find the build using memcached
+                    if ( Flight::cfg()->get( 'memcached.enabled') ) {
+                        $build = Flight::mc()->get( $file );
+
+                        // If not found there, we have to find it with the old fashion method...
+                        if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
+                            $build = new Build( $file, $path);
+                            // ...and then save it for the next lookup
+                            Flight::mc()->set( $file, serialize($build), MEMCACHE_COMPRESSED );
+                        // If we have found it, just unserialize it and continue
+                        } else {
+                            $build = unserialize( $build );
+                        }
+                    } else
+                        $build = new Build( $file, $path . '/' . $subdir );
+
+                    if ( $build->isValid( $this->postData['params'] ) ) {
+                        array_push( $this->builds , $build );
                     }
                 }
             }
-
-            return $result;
         }
 
     }
