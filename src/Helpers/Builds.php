@@ -115,7 +115,7 @@
                 'snapshots'
             );
             foreach ( $subdirs as $subdir ) {
-                $files = preg_grep( '/^([^.Thumbs])/', scandir( $path . '/' . $subdir ) );
+                $files = preg_grep( '/^.*\.(zip)$/', scandir( $path . '/' . $subdir ) );
                 $this->processBuilds($files, $path, $subdir);
             }
     	}
