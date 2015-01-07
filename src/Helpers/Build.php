@@ -57,6 +57,7 @@
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            unset($this->buildProp);
     	}
 
         /**
@@ -70,7 +71,6 @@
             if ( $params['device'] == $this->model ) {
                 if ( count($params['channels']) > 0 ) {
                     foreach ( $params['channels'] as $channel ) {
-                        var_dump($channel);
                         if ( strtolower($channel) == $this->channel ) $ret = true;
                     }
                 }

@@ -26,6 +26,7 @@
 
     use \Flight;
     use \JX\CmOta\Helpers\Build;
+    use \Memcached;
 
     class Builds {
 
@@ -122,23 +123,26 @@
 
         private function processBuilds($files, $path, $subdir) {
             if ( count( $files ) > 0  ) {
+                $mc = new Memcached();
+                $cache_available = $mc->addServer( '127.0.0.1', 11211 );
                 foreach ( $files as $file ) {
 
                     // Try to find the build using memcached
-                    if ( Flight::cfg()->get( 'memcached.enabled') ) {
-                        $build = Flight::mc()->get( $file );
+                    if ( $cache_available ) {
+                        $build = $mc->get( $file );
 
                         // If not found there, we have to find it with the old fashion method...
-                        if ( !$build && Flight::mc()->getResultCode() == Memcached::RES_NOTFOUND ) {
-                            $build = new Build( $file, $path);
+                        if ( !$build && $mc->getResultCode() == Memcached::RES_NOTFOUND ) {
+                            $build = new Build( $file, $path . '/' . $subdir );
                             // ...and then save it for the next lookup
-                            Flight::mc()->set( $file, serialize($build), MEMCACHE_COMPRESSED );
+                            $mc->set( $file, serialize($build) );
                         // If we have found it, just unserialize it and continue
                         } else {
                             $build = unserialize( $build );
                         }
-                    } else
+                    } else {
                         $build = new Build( $file, $path . '/' . $subdir );
+                    }
 
                     if ( $build->isValid( $this->postData['params'] ) ) {
                         array_push( $this->builds , $build );
