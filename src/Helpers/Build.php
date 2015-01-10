@@ -118,10 +118,16 @@
             $ret = '';
 
             if ( empty($path) ) $path = $this->filePath;
-            // Pretty much faster if it is available
+            // Pretty much the fastest if it is available
+            if ( file_exists( $path . '.md5sum' ) ) {
+                $ret = explode("  ", file_get_contents($path))[0];
+                // Check if it's valid md5sum
+                if (preg_match('/^[a-f0-9]{32}$/', $ret))
+                    return $ret;
+            }
+            // Very slow alternatives
             if ( $this->commandExists( 'md5sum' ) ) {
-                $tmp = explode("  ", exec( 'md5sum ' . $path));
-                $ret = $tmp[0];
+                $ret = explode("  ", exec( 'md5sum ' . $path))[0];
             } else {
                 $ret = md5_file($path);
             }
