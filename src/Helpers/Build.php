@@ -58,7 +58,7 @@
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
-            $this->md5sum = $this->_getMD5($this->filepath);
+            $this->md5sum = $this->_getMD5( $physicalPath . '/' . $fileName );
             unset($this->buildProp);
     	}
 
@@ -202,8 +202,9 @@
 
             if ( empty($path) ) return '';
             // Pretty much the fastest if it is available
-            if ( file_exists( $path . '.md5sum' ) ) {
-                $ret = explode("  ", file_get_contents($path))[0];
+            $md5file = $path . '.md5sum';
+            if ( file_exists( $md5file ) ) {
+                $ret = explode("  ", file_get_contents($md5file))[0];
                 // Check if it's valid md5sum
                 if (preg_match('/^[a-f0-9]{32}$/', $ret))
                     return $ret;
