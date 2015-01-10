@@ -38,6 +38,7 @@
         private $incremental = '';
         private $filePath = '';
         private $buildProp = '';
+        private $md5sum = '';
 
         /**
          * Constructor of the Build class.
@@ -57,6 +58,7 @@
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
             $this->model = $this->getBuildPropValue( 'ro.cm.device' );
+            $this->md5sum = $this->_getMD5($this->filepath);
             unset($this->buildProp);
     	}
 
@@ -109,33 +111,16 @@
             return $ret;
         }
 
-        /**
-         * Return the MD5 value of the current build
-         * @param string $path The path of the file
-         * @return string The MD5 hash
-         */
-        public function getMD5($path = ''){
-            $ret = '';
-
-            if ( empty($path) ) $path = $this->filePath;
-            // Pretty much the fastest if it is available
-            if ( file_exists( $path . '.md5sum' ) ) {
-                $ret = explode("  ", file_get_contents($path))[0];
-                // Check if it's valid md5sum
-                if (preg_match('/^[a-f0-9]{32}$/', $ret))
-                    return $ret;
-            }
-            // Very slow alternatives
-            if ( $this->commandExists( 'md5sum' ) ) {
-                $ret = explode("  ", exec( 'md5sum ' . $path))[0];
-            } else {
-                $ret = md5_file($path);
-            }
-
-            return $ret;
-        }
 
         /* Getters */
+
+        /**
+         * Return the MD5 value of the current build
+         * @return string The MD5 hash
+         */
+        public function getMD5(){
+            return $this->md5sum;
+        }
 
         /**
          * Get the Incremental value of the current build
@@ -205,6 +190,32 @@
                 $token[$key] = rtrim( $value[0], '-' );
             }
             return $token;
+        }
+
+        /**
+         * Return the MD5 value of the current build from given path
+         * @param string $path The path of the file
+         * @return string The MD5 hash
+         */
+        private function _getMD5($path = ''){
+            $ret = '';
+
+            if ( empty($path) ) return '';
+            // Pretty much the fastest if it is available
+            if ( file_exists( $path . '.md5sum' ) ) {
+                $ret = explode("  ", file_get_contents($path))[0];
+                // Check if it's valid md5sum
+                if (preg_match('/^[a-f0-9]{32}$/', $ret))
+                    return $ret;
+            }
+            // Very slow alternatives
+            if ( $this->commandExists( 'md5sum' ) ) {
+                $ret = explode("  ", exec( 'md5sum ' . $path))[0];
+            } else {
+                $ret = md5_file($path);
+            }
+
+            return $ret;
         }
 
         /**
