@@ -28,5 +28,5 @@
 
     $app = new CmOta();
     $app
-    ->setConfig( 'basePath', 'https://dl.opendesireproject.org/ota' )
+    ->setConfig( 'basePath', 'http://ota.opendesireproject.org' )
     ->run();
