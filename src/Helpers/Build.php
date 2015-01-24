@@ -53,7 +53,7 @@
             $this->channel = $this->_getChannel( $this->getBuildPropValue( 'ro.odp.releasetype' ) );
             $this->filename = $fileName;
             $this->url = $this->_getUrl( '', Flight::cfg()->get('buildsPath') );
-            //$this->changelogUrl = $this->_getChangelogUrl(); // doesn't exist currently
+            $this->changelogUrl = $this->_getChangelogUrl( '', Flight::cfg()->get('buildsPath') );
             $this->timestamp = $this->getBuildPropValue( 'ro.build.date.utc' );
             $this->incremental = $this->getBuildPropValue( 'ro.build.version.incremental' );
             $this->apiLevel = $this->getBuildPropValue( 'ro.build.version.sdk' );
@@ -258,8 +258,19 @@
          * Get the changelog URL for the current build
          * @return string The changelog URL
          */
-        private function _getChangelogUrl(){
-            return str_replace('.zip', '.txt', $this->url);
+        private function _getChangelogUrl($fileName = '', $basePath){
+            if ( empty($fileName) ) $fileName = $this->filename;
+            $prefix = '/12';
+            switch ( $this->channel ) {
+                case 'nightly':
+                    $prefix .= '/nightlies';
+                    break;
+                case 'snapshot':
+                    $prefix .= '/snapshots';
+                    break;
+            }
+            $prefix .= '/changelogs';
+            return $basePath . $prefix . '/' . str_replace(".zip", ".changelog", $fileName);
         }
 
         /**
